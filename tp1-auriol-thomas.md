@@ -490,6 +490,28 @@ Echec de ma part.
 
 ### <u>*Installation*</u>
 
+```
+[admin@localhost ~]$ bash <(curl -Ss https://my-netdata.io/kickstart.sh)
+```
 
+Ouverture du port 19999 pour voir netdata sur le navigateur.
+
+```
+[admin@localhost ~]$ sudo firewall-cmd --add-port=19999/tcp --permanent
+    success
+[admin@localhost ~]$ sudo firewall-cmd --reload
+    success
+```
+
+En allant sur 192.168.1.11:19999 on voit bien la page de netdata, plus qu'a configurer les notifications discord.
+
+```
+[admin@localhost ~]$ sudo /etc/netdata/edit-config health_alarm_notify.conf
+    Editing '/etc/netdata/health_alarm_notify.conf' ...
+```
+
+Dans le health_alarm_notify on ajoute notre lien de webhook discord et on définié les envoie sur alarms et systems.
+
+Après un peu de temps j'ai reçu un message sur mon salon discord.
 
 ---
