@@ -1,3 +1,5 @@
+disk = './disque/secondDisk.vdi'
+
 Vagrant.configure("2") do |config|
   config.vm.box = "centos/7"
 
@@ -12,10 +14,15 @@ Vagrant.configure("2") do |config|
     v.memory = 1024
     v.cpus = 2
     v.name = "b2-tp2-centos"
+
+    unless File.exist?(disk)
+      v.customize ['createhd', '--filename',disk , '--variant', 'Fixed', '--size', 5 * 1024]
+    end
+      v.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
+
   end
 
   # Exécution d'un script au démarrage de la VM
   config.vm.provision "shell", path: "script/vim_install.sh"
-
 
 end
