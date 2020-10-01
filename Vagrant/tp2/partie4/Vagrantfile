@@ -1,0 +1,67 @@
+disk = './disque/secondDisk.vdi'
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos7-custom"
+
+  config.vbguest.auto_update = false
+  config.vm.box_check_update = false
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  # Config une première VM "node1"
+  config.vm.define "node1" do |node1|
+    # remarquez l'utilisation de 'node1.' défini sur la ligne au dessus
+    node1.vm.network "private_network", ip: "192.168.2.11"
+  
+    node1.vm.provider "virtualbox" do |v|
+      v.memory = 1024
+      v.name = "node1.tp2.b2"
+
+      unless File.exist?(disk)
+        v.customize ['createhd', '--filename',disk , '--variant', 'Fixed', '--size', 5 * 1024]
+      end
+        v.customize ['storageattach', :id, '--storagectl', 'IDE', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk]
+    end
+
+    # Nginx conf
+    node1.vm.provision "file",
+      source: "script/nginx.conf", 
+      destination: "/tmp/nginx.conf"
+    node1.vm.provision "shell", inline: "cp /tmp/nginx.conf /etc/nginx/nginx.conf"
+
+    # Certificats
+    node1.vm.provision "file", 
+      source: "script/ssl/server.crt", 
+      destination: "/tmp/ssl/server.crt"
+    node1.vm.provision "file", 
+      source: "script/ssl/server.key", 
+      destination: "/tmp/ssl/server.key"
+    node1.vm.provision "shell", inline: "cp /tmp/ssl/server.key /etc/pki/tls/private/server.key"
+    node1.vm.provision "shell", inline: "cp /tmp/ssl/server.crt /etc/pki/tls/certs/server.crt"
+
+    # Backup
+    node1.vm.provision "file", 
+      source: "script/backup.sh", 
+      destination: "/tmp/backup.sh"
+
+    node1.vm.provision "shell", path: "script/node1_install.sh"
+
+  end
+
+  # Config une première VM "node2"
+  config.vm.define "node2" do |node2|
+    # remarquez l'utilisation de 'node2.' défini sur la ligne au dessus
+    node2.vm.network "private_network", ip: "192.168.2.12"
+
+    node2.vm.provider "virtualbox" do |v|
+      v.memory = 512
+      v.name = "node2.tp2.b2"
+    end
+
+    # Certificat
+    node2.vm.provision "file", 
+      source: "script/ssl/server.crt", 
+      destination: "/tmp/ssl/server.crt"
+
+    node2.vm.provision "shell", path: "script/node2_install.sh"
+  end
+end
