@@ -1,0 +1,15 @@
+[Unit]
+Description=Serveur web tp3
+After=network.target
+
+[Service]
+Type=simple
+Environment="PORT=1020"
+User=web
+ExecStartPre=/usr/bin/sudo /usr/bin/firewall-cmd --add-port=${PORT}/tcp
+ExecStart=/usr/bin/sudo /usr/bin/python3 -m http.server ${PORT}
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStopPost=/usr/bin/sudo /usr/bin/firewall-cmd --remove-port=${PORT}/tcp
+
+[Install]
+WantedBy=multi-user.target

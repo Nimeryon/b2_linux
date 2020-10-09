@@ -1,0 +1,14 @@
+
+[Unit]
+Description=Script de backup
+
+[Service]
+User=backup
+Type=oneshot
+PIDFile=/var/run/backup.pid
+ExecStartPre=/opt/conf/prestart.sh /opt/site1
+ExecStart=/opt/conf/start.sh /opt/site1
+ExecStartPost=/opt/conf/poststart.sh /opt/site1
+
+[Install]
+WantedBy=multi-user.target

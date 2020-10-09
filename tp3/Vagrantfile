@@ -1,0 +1,21 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+
+  config.vbguest.auto_update = false
+  config.vm.box_check_update = false
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
+  config.vm.network "private_network", ip: "192.168.3.11"
+  config.vm.hostname = "node1.tp3.b2"
+
+  config.vm.provider "virtualbox" do |v|
+    v.memory = 1024
+    v.name = "b2-tp3-centos"
+  end
+
+  config.vm.provision "file", 
+    source: "systemd/", 
+    destination: "/tmp/systemd"
+
+  config.vm.provision "shell", path: "scripts/install.sh"
+end
